@@ -8,7 +8,8 @@ if __name__ == '__main__':
 
     # datasets = ['mvtec', 'visa']
     datasets = ['visa']
-    shots = [1, 2, 4]
+    # shots = [1, 2, 4]
+    shots = [1]
 
     for shot in shots:
         for dataset in datasets:
