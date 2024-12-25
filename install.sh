@@ -1,5 +1,5 @@
 # PyTorch
-mkdir visa && wget https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar && tar xf VisA_20220922.tar && cd ../
+mkdir visa && cd visa && wget https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar && tar xf VisA_20220922.tar && cd ../
 
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
