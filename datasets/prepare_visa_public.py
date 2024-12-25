@@ -12,7 +12,7 @@ def _mkdirs_if_not_exists(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-source_folder = "/home/usama/linux/programmes/itu/semester5/genai/project/VisA"
+source_folder = "./visa"
 parser = argparse.ArgumentParser(description='Data preparation')
 parser.add_argument('--split-type',default='1cls', type=str,help='1cls, 2cls_highshot, 2cls_fewshot')
 parser.add_argument('--data-folder',default=source_folder, type=str,help='the path to downloaded VisA dataset')
