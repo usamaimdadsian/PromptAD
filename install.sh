@@ -1,5 +1,7 @@
 # PyTorch
-pip3 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+mkdir visa && wget https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar && tar xf VisA_20220922.tar && cd ../
+
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 pip install setuptools==59.5.0
 pip install --upgrade diffusers[torch]

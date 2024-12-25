@@ -13,14 +13,6 @@ class_mapping = {
 }
 
 
-state_anomaly = ["damaged {}",
-                 "flawed {}",
-                 "abnormal {}",
-                 "imperfect {}",
-                 "blemished {}",
-                 "{} with flaw",
-                 "{} with defect",
-                 "{} with damage"]
 
 abnormal_state0 = ['damaged {}', 'broken {}', '{} with flaw', '{} with defect', '{} with damage']
 
@@ -55,3 +47,53 @@ class_state_abnormal = {
     'pcb3': ['{} with bent', '{} with scratch', '{} with missing', '{} with melt'],
     'pcb4': ['{} with scratch', '{} with extra', '{} with missing', '{} with wrong place', '{} with damage', '{} with burnt', '{} with dirt'],
     'pipe_fryum': ['{} with breakage', '{} with small scratches', '{} with burnt', '{} with stuck together', '{} with colour spot', '{} with cracks']}
+
+
+state_anomaly = ["damaged {}",
+                 "flawed {}",
+                 "abnormal {}",
+                 "imperfect {}",
+                 "blemished {}",
+                 "{} with flaw",
+                 "{} with defect",
+                 "{} with damage"]
+
+
+state_normal = [
+    "a clean {}",
+    "a perfect {}",
+    "a flawless {}",
+    "a normal {}",
+    "an intact {}",
+]
+
+
+class_state_normal = {
+    'bottle': ['{} in perfect condition', '{} intact', '{} clean and undamaged'],
+    'toothbrush': ['{} without any defects', '{} in normal condition'],
+    'carpet': ['{} without holes', '{} with uniform color', '{} free of contamination', '{} without residue', '{} without cuts'],
+    'hazelnut': ['{} whole and unbroken', '{} without cuts', '{} without holes', '{} with no printing errors'],
+    'leather': ['{} with even color', '{} without cuts', '{} smooth and uncreased', '{} clean and free of glue', '{} without pokes'],
+    'cable': ['{} with straight wires', '{} with all parts intact', '{} without missing wires', '{} uncut', '{} unpoked'],
+    'capsule': ['{} without cracks', '{} with proper imprint', '{} unpoked', '{} smooth and unscratched', '{} in original shape'],
+    'grid': ['{} intact and unbroken', '{} free of residue', '{} without contamination', '{} with proper shape', '{} free of glue'],
+    'pill': ['{} without stains', '{} clean and uncontaminated', '{} without cracks', '{} with proper imprint', '{} smooth and unscratched'],
+    'transistor': ['{} with straight leads', '{} with uncut leads', '{} undamaged', '{} properly placed'],
+    'metal_nut': ['{} with proper shape', '{} clean and unstained', '{} with correct orientation', '{} smooth and unscratched'],
+    'screw': ['{} with undamaged front', '{} with smooth neck', '{} with unscratched head'],
+    'zipper': ['{} with intact teeth', '{} with proper fabric', '{} without defects', '{} without splits', '{} with smooth teeth'],
+    'tile': ['{} without cracks', '{} smooth and clean', '{} free of glue strips', '{} with even surface'],
+    'wood': ['{} clean and unstained', '{} without holes', '{} smooth and unscratched', '{} free of liquid residue'],
+    'candle': ['{} smooth and even', '{} without foreign particles', '{} with proper wax distribution', '{} with intact wick', '{} with perfect packaging', '{} with uniform color','{} with consistent fragrance distribution','{} with no visible scratches or dents','{} properly labeled with clear instructions','{} with a stable base for safe use'],
+    'capsules': ['{} smooth and intact', '{} with uniform color', '{} properly shaped', '{} without leaks', '{} bubble-free'],
+    'cashew': ['{} whole and unbroken', '{} smooth and clean', '{} without burns', '{} unstuck', '{} spotless'],
+    'chewinggum': ['{} intact and smooth', '{} without scratches', '{} in perfect shape', '{} with uniform color'],
+    'fryum': ['{} unbroken and smooth', '{} evenly colored', '{} without burns', '{} separated and clean'],
+    'macaroni1': ['{} clean and smooth', '{} without chips', '{} without scratches', '{} unbroken', '{} without cracks'],
+    'macaroni2': ['{} clean and smooth', '{} without chips', '{} without scratches', '{} unbroken', '{} without cracks'],
+    'pcb1': ['{} straight and undamaged', '{} smooth and unscratched', '{} with all components present', '{} without melting'],
+    'pcb2': ['{} straight and undamaged', '{} smooth and unscratched', '{} with all components present', '{} without melting'],
+    'pcb3': ['{} straight and undamaged', '{} smooth and unscratched', '{} with all components present', '{} without melting'],
+    'pcb4': ['{} smooth and clean', '{} with correct components', '{} without missing parts', '{} properly placed', '{} undamaged and unburnt', '{} free of dirt'],
+    'pipe_fryum': ['{} unbroken and smooth', '{} without scratches', '{} evenly colored', '{} separated and clean', '{} without cracks']
+}

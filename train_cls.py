@@ -66,14 +66,17 @@ def fit(model,
             # data = data[0:1, :, :, :].to(device)
             data = data.to(device)
 
-            normal_text_prompt, abnormal_text_prompt_handle, abnormal_text_prompt_learned = model.prompt_learner()
+            normal_text_prompt, abnormal_text_prompt_handle, abnormal_text_prompt_learned, normal_text_prompt_handle= model.prompt_learner()
 
             optimizer.zero_grad()
 
-            normal_text_features = model.encode_text_embedding(normal_text_prompt, model.tokenized_normal_prompts)
+            normal_text_features_learned = model.encode_text_embedding(normal_text_prompt, model.tokenized_normal_prompts_learned)
+            normal_text_features_handle = model.encode_text_embedding(normal_text_prompt_handle, model.tokenized_normal_prompts_handle)
 
             abnormal_text_features_handle = model.encode_text_embedding(abnormal_text_prompt_handle, model.tokenized_abnormal_prompts_handle)
             abnormal_text_features_learned = model.encode_text_embedding(abnormal_text_prompt_learned, model.tokenized_abnormal_prompts_learned)
+            
+            normal_text_features = torch.cat([normal_text_features_handle, normal_text_features_learned], dim=0)
             abnormal_text_features = torch.cat([abnormal_text_features_handle, abnormal_text_features_learned], dim=0)
 
             # compute mean

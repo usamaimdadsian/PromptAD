@@ -6,7 +6,8 @@ if __name__ == '__main__':
 
     pool = Pool(processes=1)
 
-    datasets = ['mvtec', 'visa']
+    # datasets = ['mvtec', 'visa']
+    datasets = ['visa']
     shots = [1, 2, 4]
 
     for shot in shots:
@@ -20,6 +21,7 @@ if __name__ == '__main__':
 
                 print(sh_method)
                 pool.apply_async(os.system, (sh_method,))
+                # os.system(sh_method)
 
     pool.close()
     pool.join()

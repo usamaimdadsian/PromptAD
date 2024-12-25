@@ -35,6 +35,7 @@ class PromptLearner(nn.Module):
             dtype = torch.float32
 
         state_anomaly1 = state_anomaly + class_state_abnormal[classname]
+        state_normal1 = state_normal + class_state_normal[classname]
 
         if classname in class_mapping:
             classname = class_mapping[classname]
@@ -56,6 +57,8 @@ class PromptLearner(nn.Module):
 
         # normal prompt
         normal_prompts = [normal_prompt_prefix + " " + classname + "." for _ in range(n_pro)]
+        self.n_n_handle = len(state_normal1)
+        normal_prompts_handle = [normal_prompt_prefix + " " + state.format(classname) + "." for state in state_normal1 for _ in range(n_pro)]
 
         # abnormal prompt
         self.n_ab_handle = len(state_anomaly1)
@@ -65,11 +68,13 @@ class PromptLearner(nn.Module):
         # abnormal_prompts = abnormal_prompts_learned + abnormal_prompts_handle
 
         tokenized_normal_prompts = CLIPAD.tokenize(normal_prompts)
+        tokenized_normal_prompts_handle = torch.cat([CLIPAD.tokenize(p) for p in normal_prompts_handle])
         tokenized_abnormal_prompts_handle = torch.cat([CLIPAD.tokenize(p) for p in abnormal_prompts_handle])
         tokenized_abnormal_prompts_learned = torch.cat([CLIPAD.tokenize(p) for p in abnormal_prompts_learned])
 
         with torch.no_grad():
             normal_embedding = clip_model.token_embedding(tokenized_normal_prompts).type(dtype)
+            normal_embedding_handle = clip_model.token_embedding(tokenized_normal_prompts_handle).type(dtype)
             abnormal_embedding_handle = clip_model.token_embedding(tokenized_abnormal_prompts_handle).type(dtype)
             abnormal_embedding_learned = clip_model.token_embedding(tokenized_abnormal_prompts_learned).type(dtype)
 
@@ -78,6 +83,9 @@ class PromptLearner(nn.Module):
         # those computed using the current class names
         self.register_buffer("normal_token_prefix", normal_embedding[:, :1, :])  # SOS
         self.register_buffer("normal_token_suffix", normal_embedding[:, 1 + n_ctx:, :])  # CLS, EOS
+
+        self.register_buffer("normal_token_prefix_handle", normal_embedding_handle[:, :1, :])  # SOS
+        self.register_buffer("normal_token_suffix_handle", normal_embedding_handle[:, 1 + n_ctx:, :])  # CLS, EOS
 
         self.register_buffer("abnormal_token_prefix_handle", abnormal_embedding_handle[:, :1, :])  # SOS
         self.register_buffer("abnormal_token_suffix_handle", abnormal_embedding_handle[:, 1 + n_ctx:, :])  # CLS, EOS
@@ -90,6 +98,7 @@ class PromptLearner(nn.Module):
         self.n_pro_ab = n_pro_ab
         self.n_ctx_ab = n_ctx_ab
         self.tokenized_normal_prompts = tokenized_normal_prompts  # torch.Tensor
+        self.tokenized_normal_prompts_handle = tokenized_normal_prompts_handle  # torch.Tensor
         self.tokenized_abnormal_prompts_handle = tokenized_abnormal_prompts_handle  # torch.Tensor
         self.tokenized_abnormal_prompts_learned = tokenized_abnormal_prompts_learned  # torch.Tensor
         # self.tokenized_abnormal_prompts = torch.cat([tokenized_abnormal_prompts_handle, tokenized_abnormal_prompts_learned], dim=0)
@@ -113,9 +122,24 @@ class PromptLearner(nn.Module):
             dim=1,
         )
 
+        # handle normal prompt
+        n_n_handle = self.n_n_handle
+        n_pro, n_ctx, dim = normal_ctx.shape
+        normal_ctx1 = normal_ctx.unsqueeze(0).expand(n_n_handle, -1, -1, -1).reshape(-1, n_ctx, dim)
+        normal_prefix_handle = self.normal_token_prefix_handle
+        normal_suffix_handle = self.normal_token_suffix_handle
+        normal_prompts_handle = torch.cat(
+            [
+                normal_prefix_handle,     # (n_pro * n_n_handle, 1, dim)
+                normal_ctx1,                # (n_pro * n_n_handle, n_ctx, dim)
+                normal_suffix_handle,     # (n_pro * n_n_handle, *, dim)
+            ],
+            dim=1,
+        )
+        
+        
         # handle abnormal prompt
         n_ab_handle = self.n_ab_handle
-
         n_pro, n_ctx, dim = normal_ctx.shape
         normal_ctx1 = normal_ctx.unsqueeze(0).expand(n_ab_handle, -1, -1, -1).reshape(-1, n_ctx, dim)
 
@@ -152,7 +176,7 @@ class PromptLearner(nn.Module):
         # abnormal_prompts = torch.cat([abnormal_prompts_handle, abnormal_prompts_learned], dim=0)
         # abnormal_prompts = abnormal_prompts_handle
 
-        return normal_prompts, abnormal_prompts_handle, abnormal_prompts_learned
+        return normal_prompts, abnormal_prompts_handle, abnormal_prompts_learned, normal_prompts_handle
 
 
 class PromptAD(torch.nn.Module):
@@ -229,9 +253,13 @@ class PromptAD(torch.nn.Module):
 
         # # for testing
         # p1, p2 = self.prompt_learner()
-        self.tokenized_normal_prompts = self.prompt_learner.tokenized_normal_prompts
+        self.tokenized_normal_prompts_learned = self.prompt_learner.tokenized_normal_prompts
+        self.tokenized_normal_prompts_handle = self.prompt_learner.tokenized_normal_prompts_handle
+
         self.tokenized_abnormal_prompts_handle = self.prompt_learner.tokenized_abnormal_prompts_handle
         self.tokenized_abnormal_prompts_learned = self.prompt_learner.tokenized_abnormal_prompts_learned
+
+        self.tokenized_normal_prompts = torch.cat([self.tokenized_normal_prompts_learned, self.tokenized_normal_prompts_handle], dim=0)
         self.tokenized_abnormal_prompts = torch.cat([self.tokenized_abnormal_prompts_handle, self.tokenized_abnormal_prompts_learned], dim=0)
 
     @torch.no_grad()
@@ -254,7 +282,8 @@ class PromptAD(torch.nn.Module):
 
     @torch.no_grad()
     def build_text_feature_gallery(self):
-        normal_text_embeddings, abnormal_text_embeddings_handle, abnormal_text_embeddings_learned = self.prompt_learner()
+        normal_text_embeddings_learned, abnormal_text_embeddings_handle, abnormal_text_embeddings_learned, normal_text_embeddings_handle = self.prompt_learner()
+        normal_text_embeddings = torch.cat([normal_text_embeddings_learned, normal_text_embeddings_handle], dim=0)
         abnormal_text_embeddings = torch.cat([abnormal_text_embeddings_handle, abnormal_text_embeddings_learned], dim=0)
 
         if self.version == "V1":
